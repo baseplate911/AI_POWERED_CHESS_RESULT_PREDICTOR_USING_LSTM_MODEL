@@ -5,10 +5,7 @@ const errorContainer = document.getElementById('error-container');
 
 // Board and Moves
 const boardContainer = document.getElementById('board-container');
-const board = Chessboard('board', { 
-    position: 'start',
-    pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/img/chesspieces/wikipedia/{piece}.png'
-});
+let board = null; // Initialize board as null
 const movesContainer = document.getElementById('moves-container');
 const movesList = document.getElementById('moves-list');
 
@@ -35,7 +32,6 @@ fetchBtn.addEventListener('click', handleFetchAndPredict);
 lichessIdInput.addEventListener('keyup', (event) => {
     if (event.key === 'Enter') handleFetchAndPredict();
 });
-$(window).resize(board.resize);
 
 // --- Main Handler Function ---
 async function handleFetchAndPredict() {
@@ -53,14 +49,14 @@ async function handleFetchAndPredict() {
     movesContainer.classList.add('hidden');
     movePredictionsContainer.classList.add('hidden');
     loadingState.classList.remove('hidden');
+    loadingState.classList.add('flex');
     fetchBtn.disabled = true;
     fetchBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
     try {
-        // *** IMPORTANT: This URL must point to your LIVE backend on Render ***
-        const backendApiUrl = 'https://ai-powered-chess-result-prediction.onrender.com/'; 
+        const backendApiUrl = 'https://ai-powered-chess-result-prediction.onrender.com';
 
-        const response = await fetch(backendApiUrl, {
+        const response = await fetch(`${backendApiUrl}/predict`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username })
@@ -71,9 +67,9 @@ async function handleFetchAndPredict() {
             throw new Error(data.detail || 'An unknown error occurred.');
         }
 
-        // Hide loading spinner and update the UI with the full history
+        // Hide loading spinner and update the UI with the final prediction
         loadingState.classList.add('hidden');
-        updateUIWithHistory(data);
+        updateUI(data);
 
     } catch (error) {
         console.error("Failed to fetch or predict:", error);
@@ -88,21 +84,23 @@ async function handleFetchAndPredict() {
     }
 }
 
-function updateUIWithHistory(data) {
-    const { final_fen, all_moves, history } = data;
-
-    if (!history || history.length === 0) {
-        errorContainer.textContent = "No moves found in the game to analyze.";
-        initialState.classList.remove('hidden');
-        return;
-    }
+function updateUI(data) {
+    const { fen, prediction, moves_so_far } = data;
 
     // --- 1. Update Board and Moves List ---
-    board.position(final_fen);
+    if (!board) {
+        board = Chessboard('board', {
+            position: fen,
+            pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/img/chesspieces/wikipedia/{piece}.png'
+        });
+        $(window).resize(board.resize);
+    } else {
+        board.position(fen);
+    }
     boardContainer.classList.remove('hidden');
     
     movesList.innerHTML = '';
-    all_moves.forEach((move, index) => {
+    moves_so_far.forEach((move, index) => {
         if (index % 2 === 0) {
             const moveNumber = Math.floor(index / 2) + 1;
             const moveEl = document.createElement('span');
@@ -118,14 +116,13 @@ function updateUIWithHistory(data) {
     movesContainer.classList.remove('hidden');
 
     // --- 2. Update Final Prediction Box ---
-    const finalPrediction = history[history.length - 1];
-    const outcome = finalPrediction.prediction;
-    const finalProbs = finalPrediction.probabilities;
+    const outcome = prediction.predicted_result;
+    const finalProbs = prediction.class_probabilities;
     
     outcomeText.textContent = outcome;
-    whiteProbEl.textContent = finalProbs.white;
-    blackProbEl.textContent = finalProbs.black;
-    drawProbEl.textContent = finalProbs.draw;
+    whiteProbEl.textContent = finalProbs['White wins'];
+    blackProbEl.textContent = finalProbs['Black wins'];
+    drawProbEl.textContent = finalProbs['Draw'];
 
     const colorMap = { 'White wins': 'bg-green-500', 'Black wins': 'bg-red-500', 'Draw': 'bg-gray-500' };
     const textMap = { 'White wins': 'text-green-300', 'Black wins': 'text-red-300', 'Draw': 'text-gray-300' };
@@ -133,9 +130,9 @@ function updateUIWithHistory(data) {
     outcomeText.className = `text-4xl font-bold ${textMap[outcome] || 'text-white'}`;
     
     // Determine the correct probability key based on the outcome
-    let confidenceKey = 'draw';
-    if (outcome === 'White wins') confidenceKey = 'white';
-    if (outcome === 'Black wins') confidenceKey = 'black';
+    let confidenceKey = 'Draw';
+    if (outcome === 'White wins') confidenceKey = 'White wins';
+    if (outcome === 'Black wins') confidenceKey = 'Black wins';
     
     const confidenceValue = parseFloat(finalProbs[confidenceKey] || '0%');
     confidenceBar.style.width = `${confidenceValue}%`;
@@ -143,24 +140,32 @@ function updateUIWithHistory(data) {
     confidenceText.textContent = `Confidence: ${confidenceValue.toFixed(1)}%`;
 
     resultState.classList.remove('hidden');
+}
 
-    // --- 3. Populate Move-by-Move Analysis List ---
-    movePredictionsList.innerHTML = '';
-    history.forEach(item => {
-        const moveDiv = document.createElement('div');
-        moveDiv.className = 'p-3 bg-gray-700/50 rounded-lg';
+// Initial state setup
+showState('initial');
 
-        const moveInfo = document.createElement('p');
-        moveInfo.className = 'font-semibold text-white';
-        moveInfo.textContent = `${item.move_number}. (${item.player}) ${item.move}`;
-        
-        const predictionInfo = document.createElement('p');
-        predictionInfo.className = 'text-gray-300 text-xs mt-1';
-        predictionInfo.textContent = `Prediction: ${item.prediction} (W: ${item.probabilities.white}, B: ${item.probabilities.black}, D: ${item.probabilities.draw})`;
+function showState(state) {
+    initialState.classList.add('hidden');
+    loadingState.classList.add('hidden');
+    resultState.classList.add('hidden');
+    boardContainer.classList.add('hidden');
+    movesContainer.classList.add('hidden');
+    movePredictionsContainer.classList.add('hidden');
 
-        moveDiv.appendChild(moveInfo);
-        moveDiv.appendChild(predictionInfo);
-        movePredictionsList.appendChild(moveDiv);
-    });
-    movePredictionsContainer.classList.remove('hidden');
+    switch(state) {
+        case 'initial':
+            initialState.classList.remove('hidden');
+            break;
+        case 'loading':
+            loadingState.classList.remove('hidden');
+            loadingState.classList.add('flex');
+            break;
+        case 'results':
+            resultState.classList.remove('hidden');
+            resultState.classList.add('flex');
+            boardContainer.classList.remove('hidden');
+            movesContainer.classList.remove('hidden');
+            break;
+    }
 }
