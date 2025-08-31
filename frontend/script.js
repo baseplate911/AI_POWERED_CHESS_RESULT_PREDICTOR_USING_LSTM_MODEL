@@ -3,11 +3,11 @@ const lichessIdInput = document.getElementById('lichess-id');
 const fetchBtn = document.getElementById('fetchBtn');
 const errorContainer = document.getElementById('error-container');
 
-// Board and Moves
-const boardContainer = document.getElementById('board-container');
-let board = null; // Initialize board as null
-const movesContainer = document.getElementById('moves-container');
-const movesList = document.getElementById('moves-list');
+// Removed: Board and Moves elements
+// const boardContainer = document.getElementById('board-container');
+// let board = null;
+// const movesContainer = document.getElementById('moves-container');
+// const movesList = document.getElementById('moves-list');
 
 // Result States
 const resultContainer = document.getElementById('result-container');
@@ -23,15 +23,18 @@ const whiteProbEl = document.getElementById('white-prob');
 const blackProbEl = document.getElementById('black-prob');
 const drawProbEl = document.getElementById('draw-prob');
 
-// New Move-by-Move Analysis Elements
-const movePredictionsContainer = document.getElementById('move-predictions-container');
-const movePredictionsList = document.getElementById('move-predictions-list');
+// Removed: Move-by-Move Analysis elements
+// const movePredictionsContainer = document.getElementById('move-predictions-container');
+// const movePredictionsList = document.getElementById('move-predictions-list');
 
 // --- Event Listeners ---
 fetchBtn.addEventListener('click', handleFetchAndPredict);
 lichessIdInput.addEventListener('keyup', (event) => {
     if (event.key === 'Enter') handleFetchAndPredict();
 });
+
+// Removed: Board resize listener
+// $(window).resize(board.resize);
 
 // --- Main Handler Function ---
 async function handleFetchAndPredict() {
@@ -45,9 +48,12 @@ async function handleFetchAndPredict() {
     // Set UI to loading state
     initialState.classList.add('hidden');
     resultState.classList.add('hidden');
-    boardContainer.classList.add('hidden');
-    movesContainer.classList.add('hidden');
-    movePredictionsContainer.classList.add('hidden');
+    
+    // Removed: Board and Moves container hiding
+    // boardContainer.classList.add('hidden');
+    // movesContainer.classList.add('hidden');
+    // movePredictionsContainer.classList.add('hidden');
+    
     loadingState.classList.remove('hidden');
     loadingState.classList.add('flex');
     fetchBtn.disabled = true;
@@ -85,35 +91,11 @@ async function handleFetchAndPredict() {
 }
 
 function updateUI(data) {
-    const { fen, prediction, moves_so_far } = data;
+    // Removed: Board and moves data from destructuring
+    const { prediction } = data;
 
-    // --- 1. Update Board and Moves List ---
-    if (!board) {
-        board = Chessboard('board', {
-            position: fen,
-            pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/img/chesspieces/wikipedia/{piece}.png'
-        });
-        $(window).resize(board.resize);
-    } else {
-        board.position(fen);
-    }
-    boardContainer.classList.remove('hidden');
-    
-    movesList.innerHTML = '';
-    moves_so_far.forEach((move, index) => {
-        if (index % 2 === 0) {
-            const moveNumber = Math.floor(index / 2) + 1;
-            const moveEl = document.createElement('span');
-            moveEl.className = 'text-gray-400 w-6 text-right pr-1';
-            moveEl.textContent = `${moveNumber}.`;
-            movesList.appendChild(moveEl);
-        }
-        const moveEl = document.createElement('span');
-        moveEl.className = 'text-white';
-        moveEl.textContent = move;
-        movesList.appendChild(moveEl);
-    });
-    movesContainer.classList.remove('hidden');
+    // --- 1. Removed: Board and Moves List Update Logic ---
+    // The code that updates the board and moves list is no longer needed.
 
     // --- 2. Update Final Prediction Box ---
     const outcome = prediction.predicted_result;
@@ -149,9 +131,11 @@ function showState(state) {
     initialState.classList.add('hidden');
     loadingState.classList.add('hidden');
     resultState.classList.add('hidden');
-    boardContainer.classList.add('hidden');
-    movesContainer.classList.add('hidden');
-    movePredictionsContainer.classList.add('hidden');
+    
+    // Removed: Board and moves container hiding
+    // boardContainer.classList.add('hidden');
+    // movesContainer.classList.add('hidden');
+    // movePredictionsContainer.classList.add('hidden');
 
     switch(state) {
         case 'initial':
@@ -164,8 +148,10 @@ function showState(state) {
         case 'results':
             resultState.classList.remove('hidden');
             resultState.classList.add('flex');
-            boardContainer.classList.remove('hidden');
-            movesContainer.classList.remove('hidden');
+            
+            // Removed: Board and moves container showing
+            // boardContainer.classList.remove('hidden');
+            // movesContainer.classList.remove('hidden');
             break;
     }
 }
