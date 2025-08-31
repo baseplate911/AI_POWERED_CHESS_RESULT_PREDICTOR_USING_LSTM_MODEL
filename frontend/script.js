@@ -54,7 +54,7 @@ async function handleFetchAndPredict() {
     fetchBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
     try {
-        const backendApiUrl = 'https://ai-powered-chess-result-prediction.onrender.com';
+        const backendApiUrl = 'https://chess-predictor-backend.onrender.com/';
 
         const response = await fetch(`${backendApiUrl}/predict`, {
             method: 'POST',
