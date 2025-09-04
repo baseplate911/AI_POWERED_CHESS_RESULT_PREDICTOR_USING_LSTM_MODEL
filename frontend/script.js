@@ -3,12 +3,15 @@ const lichessIdInput = document.getElementById('lichess-id');
 const fetchBtn = document.getElementById('fetchBtn');
 const errorContainer = document.getElementById('error-container');
 
+<<<<<<< HEAD
 // Removed: Board and Moves elements
 // const boardContainer = document.getElementById('board-container');
 // let board = null;
 // const movesContainer = document.getElementById('moves-container');
 // const movesList = document.getElementById('moves-list');
 
+=======
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
 // Result States
 const resultContainer = document.getElementById('result-container');
 const initialState = document.getElementById('initial-state');
@@ -23,9 +26,15 @@ const whiteProbEl = document.getElementById('white-prob');
 const blackProbEl = document.getElementById('black-prob');
 const drawProbEl = document.getElementById('draw-prob');
 
+<<<<<<< HEAD
 // Removed: Move-by-Move Analysis elements
 // const movePredictionsContainer = document.getElementById('move-predictions-container');
 // const movePredictionsList = document.getElementById('move-predictions-list');
+=======
+// Moves Section
+const movesContainer = document.getElementById('moves-container');
+const movesList = document.getElementById('moves-list');
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
 
 // --- Event Listeners ---
 fetchBtn.addEventListener('click', handleFetchAndPredict);
@@ -48,12 +57,15 @@ async function handleFetchAndPredict() {
     // Set UI to loading state
     initialState.classList.add('hidden');
     resultState.classList.add('hidden');
+<<<<<<< HEAD
     
     // Removed: Board and Moves container hiding
     // boardContainer.classList.add('hidden');
     // movesContainer.classList.add('hidden');
     // movePredictionsContainer.classList.add('hidden');
     
+=======
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
     loadingState.classList.remove('hidden');
     loadingState.classList.add('flex');
     fetchBtn.disabled = true;
@@ -91,6 +103,7 @@ async function handleFetchAndPredict() {
 }
 
 function updateUI(data) {
+<<<<<<< HEAD
     // Removed: Board and moves data from destructuring
     const { prediction } = data;
 
@@ -98,6 +111,11 @@ function updateUI(data) {
     // The code that updates the board and moves list is no longer needed.
 
     // --- 2. Update Final Prediction Box ---
+=======
+    const { prediction, moves_so_far } = data;
+
+    // --- Update Final Prediction Box ---
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
     const outcome = prediction.predicted_result;
     const finalProbs = prediction.class_probabilities;
     
@@ -111,7 +129,6 @@ function updateUI(data) {
     
     outcomeText.className = `text-4xl font-bold ${textMap[outcome] || 'text-white'}`;
     
-    // Determine the correct probability key based on the outcome
     let confidenceKey = 'Draw';
     if (outcome === 'White wins') confidenceKey = 'White wins';
     if (outcome === 'Black wins') confidenceKey = 'Black wins';
@@ -122,6 +139,32 @@ function updateUI(data) {
     confidenceText.textContent = `Confidence: ${confidenceValue.toFixed(1)}%`;
 
     resultState.classList.remove('hidden');
+
+    // --- Update Moves List ---
+    if (moves_so_far && moves_so_far.length > 0) {
+        movesContainer.classList.remove('hidden');
+        movesList.innerHTML = ""; // Clear old moves
+
+        moves_so_far.forEach((move, index) => {
+            const moveNumber = Math.floor(index / 2) + 1;
+            if (index % 2 === 0) {
+                // White's move
+                const row = document.createElement("div");
+                row.className = "flex justify-between border-b border-gray-600 py-1";
+                row.innerHTML = `<span class="text-gray-400">${moveNumber}.</span> 
+                                 <span class="font-semibold">${move}</span> 
+                                 <span id="black-move-${moveNumber}"></span>`;
+                movesList.appendChild(row);
+            } else {
+                // Black's move → append to same row
+                const row = movesList.lastChild;
+                const blackMoveCell = row.querySelector(`#black-move-${moveNumber}`);
+                if (blackMoveCell) blackMoveCell.textContent = move;
+            }
+        });
+    } else {
+        movesContainer.classList.add('hidden');
+    }
 }
 
 // Initial state setup
@@ -131,11 +174,15 @@ function showState(state) {
     initialState.classList.add('hidden');
     loadingState.classList.add('hidden');
     resultState.classList.add('hidden');
+<<<<<<< HEAD
     
     // Removed: Board and moves container hiding
     // boardContainer.classList.add('hidden');
     // movesContainer.classList.add('hidden');
     // movePredictionsContainer.classList.add('hidden');
+=======
+    movesContainer.classList.add('hidden');
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
 
     switch(state) {
         case 'initial':
@@ -148,10 +195,14 @@ function showState(state) {
         case 'results':
             resultState.classList.remove('hidden');
             resultState.classList.add('flex');
+<<<<<<< HEAD
             
             // Removed: Board and moves container showing
             // boardContainer.classList.remove('hidden');
             // movesContainer.classList.remove('hidden');
+=======
+            movesContainer.classList.remove('hidden');
+>>>>>>> 7ee8ea4 (Added move list display and feedback form)
             break;
     }
 }
