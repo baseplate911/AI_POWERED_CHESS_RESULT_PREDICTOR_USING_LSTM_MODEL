@@ -3,15 +3,6 @@ const lichessIdInput = document.getElementById('lichess-id');
 const fetchBtn = document.getElementById('fetchBtn');
 const errorContainer = document.getElementById('error-container');
 
-<<<<<<< HEAD
-// Removed: Board and Moves elements
-// const boardContainer = document.getElementById('board-container');
-// let board = null;
-// const movesContainer = document.getElementById('moves-container');
-// const movesList = document.getElementById('moves-list');
-
-=======
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
 // Result States
 const resultContainer = document.getElementById('result-container');
 const initialState = document.getElementById('initial-state');
@@ -26,24 +17,15 @@ const whiteProbEl = document.getElementById('white-prob');
 const blackProbEl = document.getElementById('black-prob');
 const drawProbEl = document.getElementById('draw-prob');
 
-<<<<<<< HEAD
-// Removed: Move-by-Move Analysis elements
-// const movePredictionsContainer = document.getElementById('move-predictions-container');
-// const movePredictionsList = document.getElementById('move-predictions-list');
-=======
 // Moves Section
 const movesContainer = document.getElementById('moves-container');
 const movesList = document.getElementById('moves-list');
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
 
 // --- Event Listeners ---
 fetchBtn.addEventListener('click', handleFetchAndPredict);
 lichessIdInput.addEventListener('keyup', (event) => {
     if (event.key === 'Enter') handleFetchAndPredict();
 });
-
-// Removed: Board resize listener
-// $(window).resize(board.resize);
 
 // --- Main Handler Function ---
 async function handleFetchAndPredict() {
@@ -55,19 +37,7 @@ async function handleFetchAndPredict() {
     errorContainer.textContent = '';
 
     // Set UI to loading state
-    initialState.classList.add('hidden');
-    resultState.classList.add('hidden');
-<<<<<<< HEAD
-    
-    // Removed: Board and Moves container hiding
-    // boardContainer.classList.add('hidden');
-    // movesContainer.classList.add('hidden');
-    // movePredictionsContainer.classList.add('hidden');
-    
-=======
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
-    loadingState.classList.remove('hidden');
-    loadingState.classList.add('flex');
+    showState('loading');
     fetchBtn.disabled = true;
     fetchBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
@@ -85,16 +55,14 @@ async function handleFetchAndPredict() {
             throw new Error(data.detail || 'An unknown error occurred.');
         }
 
-        // Hide loading spinner and update the UI with the final prediction
-        loadingState.classList.add('hidden');
+        // Update the UI with the final prediction
         updateUI(data);
 
     } catch (error) {
         console.error("Failed to fetch or predict:", error);
         errorContainer.textContent = error.message;
         // Reset UI on error
-        loadingState.classList.add('hidden');
-        initialState.classList.remove('hidden');
+        showState('initial');
     } finally {
         // Re-enable the button
         fetchBtn.disabled = false;
@@ -103,19 +71,9 @@ async function handleFetchAndPredict() {
 }
 
 function updateUI(data) {
-<<<<<<< HEAD
-    // Removed: Board and moves data from destructuring
-    const { prediction } = data;
-
-    // --- 1. Removed: Board and Moves List Update Logic ---
-    // The code that updates the board and moves list is no longer needed.
-
-    // --- 2. Update Final Prediction Box ---
-=======
     const { prediction, moves_so_far } = data;
 
     // --- Update Final Prediction Box ---
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
     const outcome = prediction.predicted_result;
     const finalProbs = prediction.class_probabilities;
     
@@ -138,7 +96,7 @@ function updateUI(data) {
     confidenceBar.className = `h-4 rounded-full transition-all duration-500 ${colorMap[outcome] || 'bg-yellow-500'}`;
     confidenceText.textContent = `Confidence: ${confidenceValue.toFixed(1)}%`;
 
-    resultState.classList.remove('hidden');
+    showState('results');
 
     // --- Update Moves List ---
     if (moves_so_far && moves_so_far.length > 0) {
@@ -174,15 +132,7 @@ function showState(state) {
     initialState.classList.add('hidden');
     loadingState.classList.add('hidden');
     resultState.classList.add('hidden');
-<<<<<<< HEAD
-    
-    // Removed: Board and moves container hiding
-    // boardContainer.classList.add('hidden');
-    // movesContainer.classList.add('hidden');
-    // movePredictionsContainer.classList.add('hidden');
-=======
     movesContainer.classList.add('hidden');
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
 
     switch(state) {
         case 'initial':
@@ -195,14 +145,7 @@ function showState(state) {
         case 'results':
             resultState.classList.remove('hidden');
             resultState.classList.add('flex');
-<<<<<<< HEAD
-            
-            // Removed: Board and moves container showing
-            // boardContainer.classList.remove('hidden');
-            // movesContainer.classList.remove('hidden');
-=======
             movesContainer.classList.remove('hidden');
->>>>>>> 7ee8ea4 (Added move list display and feedback form)
             break;
     }
 }
